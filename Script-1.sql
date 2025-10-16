@@ -62,9 +62,9 @@ select * from actor
 select * from film_actor
 
 select * from film
-
-select title from film as f,film_actor as fa , actor as a 
-where f.film_id=fa.film_id and a.actor_id=fa.actor_id and a.first_name="Ed" and a.last_name="Chase"
+ 
+select f.title from film  f join film_actor  fa on  f.film_id=fa.film_id join actor  a on a.actor_id=fa.actor_id
+where a.first_name='Ed' and a.last_name='Chase'
 
 
 
@@ -141,6 +141,7 @@ select*from rental
 select first_name,last_name,title,rental_date,return_date rental_duration from rental as r
 join customer as c on r.customer_id=c.customer_id join inventory as i on r.inventory_id=i.inventory_id 
 join film as f on f.film_id=i.film_id where   r.return_date > r.rental_date + INTERVAL '1 day' * f.rental_duration
+
 
 
 
