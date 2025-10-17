@@ -7,11 +7,6 @@ select*from inventory
 select*from rental
 
 
-/*1. Top-Rented Movies
- 
-Find the top 10 most rented movies along with their total rental count.
- 
-Hint: Use tables film, inventory, and rental.*/
 
 select  title,count(rental_id) as total_rental from film as f join inventory  i on f.film_id=i.film_id 
 join rental r on i.inventory_id=r.inventory_id group by f.title order by total_rental desc limit 10
@@ -142,6 +137,7 @@ select*from rental
 select first_name,last_name,title,rental_date,return_date rental_duration from rental as r
 join customer as c on r.customer_id=c.customer_id join inventory as i on r.inventory_id=i.inventory_id 
 join film as f on f.film_id=i.film_id where   r.return_date > r.rental_date + INTERVAL '1 day' * f.rental_duration
+
 
 
 
