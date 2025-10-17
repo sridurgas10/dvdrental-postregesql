@@ -141,6 +141,13 @@ join film as f on f.film_id=i.film_id where   r.return_date > r.rental_date + IN
 
 
 
+select first_name,last_name,title,rental_date,return_date ,rental_duration ,  
+(r.return_date - (r.rental_date + make_interval(f.rental_duration))) AS days_late from rental as r
+join customer as c on r.customer_id=c.customer_id join inventory as i on r.inventory_id=i.inventory_id 
+join film as f on f.film_id=i.film_id where   r.return_date > (r.rental_date + INTERVAL '1 day' * f.rental_duration)
+ORDER BY r.return_date desc
+
+
 
 
 
