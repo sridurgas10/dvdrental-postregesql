@@ -54,8 +54,8 @@ group by s.store_id
 
 --6.Get the list of films that have never been rented.
 
-SELECT title, length FROM film
-WHERE length > (SELECT AVG(length) FROM film)
+select title, length from film
+where length > (select avg(length) from film)
 
 
 --7.Find the top 5 customers who spent the most on rentals.
@@ -115,7 +115,7 @@ where    city.city = (
 --11. Show the average rental rate of films by category.
 select *from category 
 
-select *from rental
+select *from payment
 
 select *from film_category
 
@@ -138,8 +138,16 @@ select  first_name,last_name,sum(amount)from payment  p join staff  s on p.staff
 
 --14.Get the total revenue per month.
 
-select sum(p.amount) 
+select*from payment p 
 
+select to_char(p.payment_date ,'yyyy-mm') as month,
+       sum(p.amount) as total_revenue
+       from payment p
+       group by to_char(p.payment_date ,'yyyy-mm')
+       order by month 
+
+ 
+      
 --15.Find the most popular film (highest number of rentals).
 
 select title ,count(i.inventory_id) from film f 
@@ -152,7 +160,7 @@ group by f.title
 
 select c.first_name,c.last_name from customer c 
 left join payment p on c.customer_id=p.customer_id 
-where not  p.payment_id is  null
+where  p.payment_id is  null
 
 
 
@@ -200,7 +208,7 @@ order by count(i.film_id) desc
 
 select *from film_category
 
-WITH rental_count_per_customer AS (
+with rental_count_per_customer as (
     select 
         c.customer_id,
         c.first_name,
@@ -226,6 +234,13 @@ order by city
 
 --23.Calculate the running total of payments for each customer using a window function.
 
+select customer_id,
+      staff_id,
+      p.amount,
+     sum(p.amount) over (partition by customer_id order by staff_id ) as total_payments 
+     from payment p
+
+
 --24 Get the film(s) with the highest rental revenue.
 
 select*from category
@@ -237,10 +252,10 @@ group by f.title order by sum(p.amount)  desc
 
 --25.Find the staff member with the highest total sales
 
-select concat(s.first_name,'',s.last_name) as staff_member , sum (p.amount) ,max(p.amount) as total_Sale from staff s
+select concat(s.first_name,'',s.last_name) as staff_member , sum (p.amount)  as total_Sale from staff s
 join payment p on s.staff_id=p.staff_id 
 join store st on st.store_id= s.store_id  
-group by s.first_name,s.last_name
+group by s.first_name,s.last_name order by total_sale  desc limit 1
 
  
 
@@ -324,10 +339,10 @@ select *from film_category
 
 
 
-SELECT  c.name AS category_name, AVG(f.replacement_cost) AS avg_replacement_cost FROM film f
-JOIN film_category fc ON f.film_id = fc.film_id
-JOIN category c ON fc.category_id = c.category_id
-GROUP BY c.name ORDER BY avg_replacement_cost desc LIMIT 1
+select  c.name as category_name, avg(f.replacement_cost) as avg_replacement_cost from film f
+join film_category fc on f.film_id = fc.film_id
+join category c on fc.category_id = c.category_id
+group by c.name order by avg_replacement_cost desc limit 1
 
 
 
@@ -413,6 +428,15 @@ having count(distinct s.store_id) = (
 
 --39.Rank customers based on their total payments using window functions.
 
+ select*from customer c 
+ 
+select c.customer_id,c.first_name,c.last_name,
+sum(p.amount) as total_payments,
+rank() over (order by sum(p.amount) desc) as rank
+from  payment p 
+join customer c on p.customer_id=c.customer_id
+group by c.customer_id,c.first_name,c.last_name
+order by rank
 
 --40 Find the most active day of the week (based on number of rentals).
 
@@ -422,4 +446,3 @@ group by day_of_week order by total_rentals desc limit 1
 
     
 
-    
